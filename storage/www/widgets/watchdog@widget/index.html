@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+<head>
     <title>AtmosphericX</title>
     <link rel="icon" href="/assets/media/dashboard/atmosx-logo-vector.ico" type="image/x-icon">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
@@ -8,18 +9,35 @@
     <script src="../../assets/javascript/cLibrary.js"></script>
     <script src="../../assets/javascript/cElements.js"></script>
     <script src="../../assets/javascript/cAlerts.js"></script>
-    <body><p id="watchdog" class="text">Awaiting Callback...</p></body>
-    <script>
-        let library = new Library()
-        library.createWebsocketSession([`public`, `active`, `manual`]).then(() => {
-            let alert_class = new Alerts(library)
-            let element_class = new Elements(library)
-            let parameter = window.location.href.split('?')[1] || 'Tornado Warning'
-            parameter = parameter.split('&')
-            document.addEventListener('onCacheUpdate', async (event) => {
-                alert_class.syncAlerts()
-                element_class.watchDog(`watchdog`, parameter)
-            })
-        })
-    </script>
+</head>
+<body id="widget-body">
+    <p id="watchdog" class="text">Awaiting Callback...</p>
+</body>
+
+<script>
+    const url = window.location.href.toLowerCase();
+    const body = document.getElementById('widget-body');
+    
+    if (url.includes('tornado')) {
+        body.style.backgroundColor = '#CC0000'; 
+    } else if (url.includes('severe%20thunderstorm') || url.includes('severe thunderstorm')) {
+        body.style.backgroundColor = '#B8860B'; 
+    }
+
+    let library = new Library();
+
+    library.createWebsocketSession(["public", "active", "manual"]).then(() => {
+
+        let alert_class = new Alerts(library);
+        let element_class = new Elements(library);
+
+        let parameter = window.location.href.split('?')[1] || 'Tornado Warning';
+        parameter = parameter.split('&');
+
+        document.addEventListener('onCacheUpdate', async () => {
+            alert_class.syncAlerts();
+            element_class.watchDog('watchdog', parameter);
+        });
+    });
+</script>
 </html>
